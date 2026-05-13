@@ -2,8 +2,6 @@
 #define int long long
 using namespace std;
 
-const int INF = 2000000000;
-
 signed main() {
   int tc; 
   cin >> tc;
@@ -12,16 +10,15 @@ signed main() {
     int n, a;
     cin >> n >> a;
 
-    vector<int> opa(n);
-    for (int i = 0; i < n; i++) cin >> opa[i];
+    vector<int> v(n);
+    for (int i = 0; i < n; i++) cin >> v[i];
 
     vector<pair<int,int>> eventos;
 
-    for (int x : opa) {
+    for (int x : v) {
       if (x < a) {
         int m = (x + a) / 2 + 1;
-        eventos.push_back({m,+1});
-        eventos.push_back({INF + 1, -1});
+        eventos.push_back({m, +1});
       } 
       else if (x > a) {
         int r = (x + a - 1) / 2;
@@ -29,19 +26,29 @@ signed main() {
         eventos.push_back({r + 1, -1});
       }
     }
+    
+    eventos.push_back({0, 0});
 
-    sort(eventos.begin(), eventos.end());
+    sort(eventos.begin(), eventos.end(), [](auto &a, auto &b) {
+        if (a.first == b.first) return a.second > b.second;
+        return a.first < b.first;
+    });
 
-    int atual = 0;
-    int melhor = -1;
-    int resp = 0;
+    int atual = 0, melhor = -1, resp = 0;
 
-    for (auto [pos, delta] : eventos) {
-      atual += delta;
-      if (atual > melhor && pos <= INF) {
-          melhor = atual;
-          resp = pos;
-      }
+    for (int i = 0; i < eventos.size(); i++) {
+        if (i > 0) {
+            if (atual > melhor) {
+                melhor = atual;
+                resp = eventos[i-1].first;
+            }
+        }
+        atual += eventos[i].second;
+    }
+
+    if (atual > melhor) {
+        melhor = atual;
+        resp = eventos.back().first;
     }
 
     cout << resp << endl;
